@@ -11,7 +11,7 @@
         android:id="@+id/titleTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="60dp"
+        android:layout_marginTop="30dp"
         android:text="Dehaze Image"
         android:textColor="@color/text_color"
         android:textSize="24sp"
@@ -19,17 +19,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <SurfaceView
-        android:id="@+id/surfaceView"
-        android:layout_width="293dp"
-        android:layout_height="486dp"
+    <ImageView
+        android:id="@+id/ImagePreview"
+        android:layout_width="379dp"
+        android:layout_height="559dp"
         android:background="#CCCCCC"
         app:layout_constraintBottom_toTopOf="@id/buttonLayout"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.495"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/titleTextView"
-        app:layout_constraintVertical_bias="0.283" />
+        app:layout_constraintVertical_bias="0.652" />
 
     <LinearLayout
         android:id="@+id/buttonLayout"
@@ -43,7 +42,7 @@
         app:layout_constraintStart_toStartOf="parent">
 
         <Button
-            android:id="@+id/selectImageButton"
+            android:id="@+id/LoadImage"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -52,18 +51,18 @@
             android:backgroundTint="@color/button_color"
             android:layout_marginEnd="8dp"/>
 
-        <Button
-            android:id="@+id/dehazeButton"
+        <Switch
+            android:id="@+id/DehazeImage"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Dehaze"
+            android:text="Activate"
             android:textColor="@color/text_color"
             android:backgroundTint="@color/button_color"
             android:layout_marginEnd="8dp"/>
 
         <Button
-            android:id="@+id/saveButton"
+            android:id="@+id/SaveImage"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
