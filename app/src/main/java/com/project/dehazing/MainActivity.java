@@ -1,5 +1,6 @@
 package com.project.dehazing;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -10,146 +11,80 @@ import android.content.pm.PackageManager;
 
 import android.os.Build;
 import android.os.Bundle;
-import android.view.View;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.opencv.android.OpenCVLoader;
 
+
 public class MainActivity extends AppCompatActivity {
-    private static final String TAG = "MainActivity";
-    private static final int CAMERA_PERMISSION_REQUEST_CODE = 100;
-    private static final int STORAGE_PERMISSION_REQUEST_CODE = 101;
-    private static final String[] PERMISSION_EXTERNAL = {Manifest.permission.WRITE_EXTERNAL_STORAGE};
-    private static final String[] PERMISSION_STORAGE = {Manifest.permission.READ_EXTERNAL_STORAGE};
+    private static final int PERMISSION_REQUEST_CODE = 100;
+    private static final String[] CAMERA_PERMISSION = {Manifest.permission.CAMERA};
+    private static final String[] STORAGE_PERMISSIONS = {
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.READ_EXTERNAL_STORAGE
+    };
 
     static {
-        OpenCVLoader.initDebug();
+        OpenCVLoader.initLocal();
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
+        findViewById(R.id.button_live).setOnClickListener(v -> checkPermissionAndStartActivity(CAMERA_PERMISSION, DehazeLive.class));
+        findViewById(R.id.button_image).setOnClickListener(v -> checkPermissionAndStartActivity(STORAGE_PERMISSIONS, DehazeImage.class));
 
-        Button liveButton = findViewById(R.id.button_live);
-        Button imageButton = findViewById(R.id.button_image);
-
-        liveButton.setEnabled(ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED);
-        liveButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, DehazeLive.class));
-
-            }
-        });
-
-        imageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, DehazeImage.class));
-            }
-        });
-
-
-        checkCameraPermission();
-        checkStoragePermission();
+        updatePermissionStatusText();
     }
 
-    private void checkCameraPermission() {
-        TextView permission = findViewById(R.id.permission_status);
-        // Check camera permission
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
-                != PackageManager.PERMISSION_GRANTED) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.CAMERA)) {
-                // Permission denied, show rationale
-                permission.append("\nCamera: Denied");
-            } else {
-                // Permission not yet requested, request it
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.CAMERA},
-                        CAMERA_PERMISSION_REQUEST_CODE);
-            }
+    private void checkPermissionAndStartActivity(String[] permissions, Class<?> activityClass) {
+        // For Android 13 and above, do not check storage permissions
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && permissions == STORAGE_PERMISSIONS) {
+            startActivity(new Intent(this, activityClass));
+            return;
+        }
+
+        if (!hasPermissions(permissions)) {
+            ActivityCompat.requestPermissions(this, permissions, PERMISSION_REQUEST_CODE);
         } else {
-            // Permission already granted
-            permission.append("\nCamera: Granted");
+            startActivity(new Intent(this, activityClass));
         }
     }
 
-    private void checkStoragePermission() {
-        TextView permission = findViewById(R.id.permission_status);
-        // Check storage permission
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-            // For Android 10 and below
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                    != PackageManager.PERMISSION_GRANTED) {
-                if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                    // Permission denied, show rationale
-                    permission.append("\nStorage: Dnied");
-                } else {
-                    // Permission not yet requested, request it
-                    ActivityCompat.requestPermissions(this,
-                            PERMISSION_EXTERNAL,
-                            STORAGE_PERMISSION_REQUEST_CODE);
-                }
-            } else {
-                // Permission already granted
-                permission.append("\nStorage: Granted");
+    private boolean hasPermissions(String[] permissions) {
+        for (String permission : permissions) {
+            if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+                return false;
             }
-        } else {
-            // For Android 11 and above
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.MANAGE_EXTERNAL_STORAGE)
-                    != PackageManager.PERMISSION_GRANTED) {
-                if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                        Manifest.permission.MANAGE_EXTERNAL_STORAGE)) {
-                    // Permission denied, show rationale
-                    permission.append("\nStorage: Denied");
-                } else {
-                    // Permission not yet requested, request it
-                    ActivityCompat.requestPermissions(this,
-                            PERMISSION_STORAGE,
-                            STORAGE_PERMISSION_REQUEST_CODE);
-                }
-            } else {
-                // Permission already granted
-                permission.append("\nStorage: Granted");
-            }
+        }
+        return true;
+    }
+
+    private void updatePermissionStatusText() {
+        TextView permissionStatus = findViewById(R.id.permission_status);
+        permissionStatus.setText("");
+
+        appendPermissionStatus(permissionStatus, CAMERA_PERMISSION, "Camera");
+
+        // Only check and display storage permission status for Android 12 and below
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            appendPermissionStatus(permissionStatus, STORAGE_PERMISSIONS, "Storage");
         }
     }
 
-    // Override onRequestPermissionsResult to handle permission request response
+    private void appendPermissionStatus(TextView textView, String[] permissions, String permissionType) {
+        textView.append(permissionType + ": " + (hasPermissions(permissions) ? "Granted" : "Denied") + "\n");
+    }
+
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == CAMERA_PERMISSION_REQUEST_CODE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Camera permission granted
-                TextView permission = findViewById(R.id.permission_status);
-                permission.setText("Camera: Granted");
-            } else {
-                // Camera permission denied
-                TextView permission = findViewById(R.id.permission_status);
-                permission.setText("Camera: Denied");
-            }
-        }
-        if (requestCode == STORAGE_PERMISSION_REQUEST_CODE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Storage permission granted
-                TextView permission = findViewById(R.id.permission_status);
-                permission.append("\nStorage: Granted");
-            } else {
-                // Storage permission denied
-                TextView permission = findViewById(R.id.permission_status);
-                permission.append("\nStorage: Denied");
-
-
-            }
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            updatePermissionStatusText();
         }
     }
 }
