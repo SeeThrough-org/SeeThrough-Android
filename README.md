@@ -3,7 +3,7 @@
 1. Download OpenCV Android and extract it from [here](https://opencv.org/releases/).
 2. In Android Studio, go to "File" -> "New" -> "Import Module".
 3. Navigate to the OpenCV-Mobile SDK folder and select the "sdk" folder. Click "Finish" to import the OpenCV module into your Android project.
-
+or simply drop the sdk folder in the directory of the repo
 ### Modifying CameraBridgeViewBase.Java
 
 In the `CameraBridgeViewBase.java` file, find the `deliverAndDrawFrame` method and replace it with the following code:
