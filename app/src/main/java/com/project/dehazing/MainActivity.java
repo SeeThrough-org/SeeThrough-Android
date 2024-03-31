@@ -20,10 +20,6 @@ import org.opencv.android.OpenCVLoader;
 public class MainActivity extends AppCompatActivity {
     private static final int PERMISSION_REQUEST_CODE = 100;
     private static final String[] CAMERA_PERMISSION = {Manifest.permission.CAMERA};
-    private static final String[] STORAGE_PERMISSIONS = {
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.READ_EXTERNAL_STORAGE
-    };
 
     static {
         OpenCVLoader.initLocal();
@@ -36,18 +32,12 @@ public class MainActivity extends AppCompatActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         findViewById(R.id.button_live).setOnClickListener(v -> checkPermissionAndStartActivity(CAMERA_PERMISSION, DehazeLive.class));
-        findViewById(R.id.button_image).setOnClickListener(v -> checkPermissionAndStartActivity(STORAGE_PERMISSIONS, DehazeImage.class));
+        findViewById(R.id.button_image).setOnClickListener(v -> startActivity(new Intent(this, DehazeImage.class)));
 
         updatePermissionStatusText();
     }
 
     private void checkPermissionAndStartActivity(String[] permissions, Class<?> activityClass) {
-        // For Android 13 and above, do not check storage permissions
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && permissions == STORAGE_PERMISSIONS) {
-            startActivity(new Intent(this, activityClass));
-            return;
-        }
-
         if (!hasPermissions(permissions)) {
             ActivityCompat.requestPermissions(this, permissions, PERMISSION_REQUEST_CODE);
         } else {
@@ -69,11 +59,6 @@ public class MainActivity extends AppCompatActivity {
         permissionStatus.setText("");
 
         appendPermissionStatus(permissionStatus, CAMERA_PERMISSION, "Camera");
-
-        // Only check and display storage permission status for Android 12 and below
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-            appendPermissionStatus(permissionStatus, STORAGE_PERMISSIONS, "Storage");
-        }
     }
 
     private void appendPermissionStatus(TextView textView, String[] permissions, String permissionType) {

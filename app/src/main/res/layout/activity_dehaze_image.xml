@@ -12,7 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="15dp"
-        android:text="Dehaze Image"
+        android:text="@string/dehaze_image_text_header"
         android:textColor="@color/text_color"
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -48,7 +48,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Load"
+            android:text="@string/dehaze_image_load_btn"
             android:textColor="@color/text_color"
             android:backgroundTint="@color/button_color"
             android:layout_marginEnd="20dp"
@@ -65,10 +65,10 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Dehaze Switch"
+                android:text="@string/switch_txt"
                 android:textColor="@color/text_color"/>
 
-            <Switch
+            <androidx.appcompat.widget.SwitchCompat
                 android:id="@+id/DehazeImage"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -84,7 +84,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_gravity="center"
-            android:text="Save"
+            android:text="@string/dehaze_image_save_btn"
             android:textColor="@color/text_color"
             android:backgroundTint="@color/button_color"
             android:layout_marginStart="20dp"/>

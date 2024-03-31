@@ -3,24 +3,29 @@ package com.project.dehazing;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
 
 
+import android.annotation.SuppressLint;
 import android.content.ActivityNotFoundException;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.WindowManager;
 import android.widget.ImageView;
-import android.widget.Switch;
 import android.widget.Toast;
 
 import org.opencv.android.Utils;
 import org.opencv.core.Mat;
 
 import java.io.IOException;
+import java.io.OutputStream;
 
 public class DehazeImage extends AppCompatActivity {
 
@@ -37,7 +42,7 @@ public class DehazeImage extends AppCompatActivity {
     private void setupUI() {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         imagePreview = findViewById(R.id.ImagePreview);
-        Switch dehazeSwitch = findViewById(R.id.DehazeImage);
+        SwitchCompat dehazeSwitch = findViewById(R.id.DehazeImage);
         findViewById(R.id.LoadImage).setOnClickListener(v -> loadImage());
         findViewById(R.id.SaveImage).setOnClickListener(v -> saveImage());
         dehazeSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -80,6 +85,7 @@ public class DehazeImage extends AppCompatActivity {
         }
     }
 
+    @SuppressLint("QueryPermissionsNeeded")
     private void loadImage() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT)
                 .setType("image/*")
@@ -121,12 +127,32 @@ public class DehazeImage extends AppCompatActivity {
     }
 
     private void saveImage() {
-        if (selectedImageUri != null) {
+        if (selectedImageUri != null && dehazedBitmap != null) {
             try {
-                String newFileName = System.currentTimeMillis() + "_Dehazed";
-                Uri savedImageUri = Uri.parse(MediaStore.Images.Media.insertImage(getContentResolver(), dehazedBitmap, newFileName, "Dehazed Image"));
-                if (savedImageUri != null) {
-                    Toast.makeText(this, "Image saved successfully at Pictures Folder", Toast.LENGTH_SHORT).show();
+                String newFileName = System.currentTimeMillis() + "_Dehazed.png";
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, newFileName);
+                contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/png");
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/Dehazed");
+                    contentValues.put(MediaStore.MediaColumns.IS_PENDING, 1);
+                }
+
+                Uri uri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
+
+                if (uri != null) {
+                    try (OutputStream outputStream = getContentResolver().openOutputStream(uri)) {
+                        if (outputStream != null) {
+                            dehazedBitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+                        }
+                    }
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        contentValues.clear();
+                        contentValues.put(MediaStore.MediaColumns.IS_PENDING, 0);
+                        getContentResolver().update(uri, contentValues, null, null);
+                    }
+                    Toast.makeText(this, "Image saved successfully in the Pictures folder", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(this, "Failed to save Image", Toast.LENGTH_SHORT).show();
                 }

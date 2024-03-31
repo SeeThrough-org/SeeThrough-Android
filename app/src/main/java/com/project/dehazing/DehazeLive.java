@@ -1,29 +1,42 @@
 package com.project.dehazing;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import android.Manifest;
-import android.annotation.SuppressLint;
+import android.content.ContentValues;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.util.Log;
 import android.view.WindowManager;
-import android.widget.Switch;
+import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
 
+import org.opencv.android.Utils;
+import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Size;
+import java.io.OutputStream;
 
 
 public class DehazeLive extends AppCompatActivity implements CvCameraViewListener2 {
     private CameraBridgeViewBase mOpenCvCameraView;
     private long lastFrameTime = System.currentTimeMillis();
+    private Mat mRgba;
 
+    private Mat mCapturedFrame;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,7 +49,52 @@ public class DehazeLive extends AppCompatActivity implements CvCameraViewListene
         } else {
             startCamera();
         }
+        findViewById(R.id.capture_Live).setOnClickListener(v ->
+                saveImage());
     }
+    private void saveImage() {
+        if (mCapturedFrame != null) {
+            try {
+                String newFileName = System.currentTimeMillis() + "_Dehazed.png";
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, newFileName);
+                contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/png");
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/Dehazed");
+                    contentValues.put(MediaStore.MediaColumns.IS_PENDING, 1);
+                }
+
+                Uri uri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
+
+                if (uri != null) {
+                    try (OutputStream outputStream = getContentResolver().openOutputStream(uri)) {
+                        if (outputStream != null) {
+                            Bitmap bitmap = Bitmap.createBitmap(mCapturedFrame.cols(), mCapturedFrame.rows(), Bitmap.Config.ARGB_8888);
+                            Utils.matToBitmap(mCapturedFrame, bitmap);
+                            bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+                            bitmap.recycle();
+                        }
+                    }
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        contentValues.clear();
+                        contentValues.put(MediaStore.MediaColumns.IS_PENDING, 0);
+                        getContentResolver().update(uri, contentValues, null, null);
+                    }
+
+                    Toast.makeText(this, "Image saved successfully in the Pictures/Dehazed folder", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, "Failed to save image", Toast.LENGTH_SHORT).show();
+                }
+            } catch (Exception e) {
+                Log.e("DehazeImage", "Error saving image", e);
+                Toast.makeText(this, "Failed to save image", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+
     private void startCamera() {
         if (mOpenCvCameraView != null) {
             mOpenCvCameraView.setCameraPermissionGranted();
@@ -46,19 +104,20 @@ public class DehazeLive extends AppCompatActivity implements CvCameraViewListene
             mOpenCvCameraView.enableView();
         }
     }
+
     @Override
     public void onCameraViewStarted(int width, int height) {
-
+        mRgba = new Mat();
     }
     @Override
     public void onCameraViewStopped() {
+        mRgba.release();
     }
-
-
     @Override
     public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
-        Mat frame = inputFrame.rgba();
-        Size resolution = frame.size();
+        mRgba = inputFrame.rgba();
+
+        Size resolution = mRgba.size();
         long currentTime = System.currentTimeMillis();
         long timeDifference = currentTime - lastFrameTime;
         lastFrameTime = currentTime;
@@ -72,16 +131,17 @@ public class DehazeLive extends AppCompatActivity implements CvCameraViewListene
             debugTextView.setText(debugData);
         });
 
-        @SuppressLint("UseSwitchCompatOrMaterialCode") Switch switchButton = findViewById(R.id.activate_dcp);
+        SwitchCompat switchButton = findViewById(R.id.activate_dcp);
         boolean dcpActivated = switchButton.isChecked();
 
         if (dcpActivated) {
             final double kernelRatio = 0.01;
             final double minAtmosLight = 240.0;
-            return DarkChannelPrior.enhance(frame, kernelRatio, minAtmosLight);
-        } else {
-            return frame;
+            mRgba = DarkChannelPrior.enhance(mRgba, kernelRatio, minAtmosLight);
         }
+        mCapturedFrame = mRgba.clone();
+        Core.flip(mCapturedFrame.t(), mCapturedFrame, 1);
+        return mRgba;
     }
 
 }

@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".DehazeLive">
 
-    <org.opencv.android.JavaCameraView
+    <org.opencv.android.JavaCamera2View
         android:id="@+id/CameraView"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -14,14 +14,15 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        />
 
     <TextView
         android:id="@+id/debug_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="FPS: "
+        android:text="@string/fps"
         android:textColor="#FFFFFF"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="@id/CameraView"
@@ -33,14 +34,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="Dehaze Switch"
+        android:text="@string/dehaze_switch"
         android:textColor="@color/text_color"
         app:layout_constraintBottom_toTopOf="@id/activate_dcp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"/>
 
-    <Switch
+    <androidx.appcompat.widget.SwitchCompat
         android:id="@+id/activate_dcp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -60,7 +61,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         android:layout_marginBottom="15dp"
-        android:background="@drawable/btn_capture_border_radius"/>
+        android:background="@drawable/btn_capture_border_radius"
+        android:contentDescription="@string/capture_image_button_description"/>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

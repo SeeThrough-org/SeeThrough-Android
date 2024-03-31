@@ -1,11 +1,8 @@
 package com.project.dehazing;
 
-import android.util.Log;
-
 import org.opencv.core.*;
 import org.opencv.imgproc.Imgproc;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -25,8 +22,7 @@ public class DarkChannelPrior {
         LinkedList<Mat> rgb = new LinkedList<>();
         Core.split(image, rgb);
         Mat minRGB = DarkChannel(image, kernelRatio);
-        Mat t = createTransmissionMap(image, minRGB);
-        transmissionMapRefine(t);
+        Mat t = createTransmissionMap(image,minRGB);
         minAtmosLight = getMinAtmosphericLight(minRGB, minAtmosLight);
         applyDehazeToChannels(rgb, t, minAtmosLight);
         Mat outval = RecoverImage(rgb);
@@ -85,21 +81,19 @@ public class DarkChannelPrior {
         Mat gray = new Mat();
         Imgproc.cvtColor(image, gray, Imgproc.COLOR_RGB2GRAY);
         Core.divide(gray, new Scalar(255.0), gray);
-
+        transmissionMapRefine(t);
         return t; // or return both t and gray if needed
     }
 
     private static Mat transmissionMapRefine(Mat t) {
-        int blurKernelSize = 15;
+        int blurKernelSize = 9;
         int sigma = 5 * blurKernelSize;
         Imgproc.GaussianBlur(t, t, new Size(blurKernelSize, blurKernelSize), sigma);
         return t;
     }
 
     private static void applyDehazeToChannels(List<Mat> rgb, Mat t, double minAtmosLight) {
-        List<Mat> channels = Arrays.asList(rgb.get(0), rgb.get(1), rgb.get(2));
-        double finalMinAtmosLight = minAtmosLight;
-        channels.parallelStream().forEach(channel -> dehazeChannel(channel, t, finalMinAtmosLight));
+        rgb.parallelStream().forEach(channel -> dehazeChannel(channel, t, minAtmosLight));
     }
 
     private static Mat RecoverImage(List<Mat> channels) {

@@ -1,3 +1,15 @@
 <resources>
     <string name="app_name">SeeThrough</string>
+    <string name="dehaze_switch">Dehaze Switch</string>
+    <string name="fps">FPS:</string>
+    <string name="title_text">Dehazing</string>
+    <string name="sub_text">See Through Dehaze: A Haze Removal</string>
+    <string name="button_1">Live</string>
+    <string name="button_2">Image</string>
+    <string name="permissions">Permissions:</string>
+    <string name="dehaze_image_text_header">Dehaze Image</string>
+    <string name="capture_image_button_description">Capture Image</string>
+    <string name="dehaze_image_save_btn">Save</string>
+    <string name="dehaze_image_load_btn">Load</string>
+    <string name="switch_txt">Dehaze Switch</string>
 </resources>
