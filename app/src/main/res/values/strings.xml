@@ -4,7 +4,7 @@
     <string name="fps">FPS:</string>
     <string name="title_text">Dehazing</string>
     <string name="sub_text">See Through Dehaze: A Haze Removal</string>
-    <string name="button_1">Live</string>
+    <string name="button_1">Dehaze Camera</string>
     <string name="button_2">Image</string>
     <string name="permissions">Permissions:</string>
     <string name="dehaze_image_text_header">Dehaze Image</string>
@@ -12,4 +12,6 @@
     <string name="dehaze_image_save_btn">Save</string>
     <string name="dehaze_image_load_btn">Load</string>
     <string name="switch_txt">Dehaze Switch</string>
+    <string name="ImagePreview_description">Preview of the dehazed image</string>
+    <string name="logo_description">The Logo of the application: a cloud and a face on top, accompanied by the text \"SEE THROUGH\" and a tagline \"See clearly, act swiftly.\" The design is modern and minimalistic.</string>
 </resources>

@@ -1,5 +1,6 @@
 package com.seethrough.dehazing;
 
+import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.app.ActivityCompat;
@@ -43,6 +44,7 @@ public class DehazeLive extends AppCompatActivity implements CvCameraViewListene
         setContentView(R.layout.activity_dehaze_live);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        EdgeToEdge.enable(this);
         mOpenCvCameraView =  findViewById(R.id.CameraView);
         if (ContextCompat.checkSelfPermission(DehazeLive.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(DehazeLive.this, new String[]{Manifest.permission.CAMERA}, 100);

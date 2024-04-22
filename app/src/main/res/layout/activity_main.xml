@@ -1,10 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
     android:background="@color/background_color"
     tools:context=".MainActivity">
+
     <ImageView
         android:id="@+id/logo_image"
         android:layout_width="match_parent"
@@ -12,13 +15,11 @@
         android:layout_above="@id/text_dehazing"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="16dp"
-        android:alpha="100"
+        android:alpha="1"
         android:background="@null"
-        android:maxWidth="200dp"
-        android:maxHeight="200dp"
+        android:contentDescription="@string/logo_description"
         android:scaleType="centerCrop"
-        android:src="@drawable/logo_dark_with_text"
-         />
+        android:src="@drawable/logo_display" />
 
     <TextView
         android:id="@+id/text_dehazing"
@@ -27,48 +28,51 @@
         android:layout_centerInParent="true"
         android:text="@string/title_text"
         android:textColor="@color/text_color"
-        android:textSize="32sp" />
+        android:textSize="32sp"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/subtext_dehazing"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/sub_text"
-        android:layout_marginTop="16dp"
-        android:textSize="16sp"
         android:layout_below="@id/text_dehazing"
         android:layout_centerHorizontal="true"
-        android:textColor="@color/subtext_color"/>
+        android:layout_marginTop="16dp"
+        android:text="@string/sub_text"
+        android:textColor="@color/subtext_color"
+        android:textSize="16sp" />
 
     <Button
         android:id="@+id/button_live"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:text="@string/button_1"
         android:layout_below="@id/subtext_dehazing"
-        android:layout_marginTop="24dp"
         android:layout_centerHorizontal="true"
-        android:backgroundTint="@color/button_color"/>
+        android:layout_marginTop="24dp"
+        android:backgroundTint="@color/button_color"
+        android:text="@string/button_1"
+        android:textColor="@android:color/white" />
 
     <Button
         android:id="@+id/button_image"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:text="@string/button_2"
         android:layout_below="@id/button_live"
-        android:layout_marginTop="16dp"
         android:layout_centerHorizontal="true"
-        android:backgroundTint="@color/button_color"/>
+        android:layout_marginTop="16dp"
+        android:backgroundTint="@color/button_color"
+        android:text="@string/button_2"
+        android:textColor="@android:color/white" />
 
     <TextView
         android:id="@+id/permission_status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/permissions"
-        android:layout_marginTop="16dp"
-        android:textSize="16sp"
         android:layout_below="@id/button_image"
         android:layout_centerHorizontal="true"
-        android:textColor="@color/subtext_color"/>
+        android:layout_marginTop="16dp"
+        android:text="@string/permissions"
+        android:textColor="@color/subtext_color"
+        android:textSize="16sp" />
 
 </RelativeLayout>

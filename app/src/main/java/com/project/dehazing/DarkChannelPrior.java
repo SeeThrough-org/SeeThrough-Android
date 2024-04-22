@@ -53,7 +53,7 @@ public class DarkChannelPrior {
         Mat gChannel = rgb.get(1);
         Mat bChannel = rgb.get(2);
 
-        Mat dc = new Mat();
+        Mat dc = new Mat(image.size(), CvType.CV_32F);
         Core.min(rChannel, gChannel, dc);
         Core.min(dc, bChannel, dc);
 
@@ -73,16 +73,16 @@ public class DarkChannelPrior {
     }
 
     private static Mat createTransmissionMap(Mat image, Mat minRGB) {
-        Mat t = new Mat();
+        Mat t = new Mat(image.size(), CvType.CV_32F);
         Core.subtract(minRGB, new Scalar(255.0), t);
         Core.multiply(t, new Scalar(-1.0), t);
         Core.divide(t, new Scalar(255.0), t);
 
-        Mat gray = new Mat();
+        Mat gray = new Mat(image.size(), CvType.CV_32F);
         Imgproc.cvtColor(image, gray, Imgproc.COLOR_RGB2GRAY);
         Core.divide(gray, new Scalar(255.0), gray);
         transmissionMapRefine(t);
-        return t; // or return both t and gray if needed
+        return t;
     }
 
     private static Mat transmissionMapRefine(Mat t) {
