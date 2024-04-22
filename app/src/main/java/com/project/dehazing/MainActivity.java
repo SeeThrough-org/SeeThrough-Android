@@ -1,4 +1,4 @@
-package com.project.dehazing;
+package com.seethrough.dehazing;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;

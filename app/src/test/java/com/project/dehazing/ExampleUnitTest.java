@@ -1,4 +1,4 @@
-package com.project.dehazing;
+package com.seethrough.dehazing;
 
 import org.junit.Test;
 

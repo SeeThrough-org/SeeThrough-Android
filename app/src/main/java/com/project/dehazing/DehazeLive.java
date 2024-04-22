@@ -1,4 +1,4 @@
-package com.project.dehazing;
+package com.seethrough.dehazing;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
@@ -41,7 +41,7 @@ public class DehazeLive extends AppCompatActivity implements CvCameraViewListene
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dehaze_live);
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
         mOpenCvCameraView =  findViewById(R.id.CameraView);
         if (ContextCompat.checkSelfPermission(DehazeLive.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {

@@ -1,4 +1,4 @@
-package com.project.dehazing;
+package com.seethrough.dehazing;
 
 import org.opencv.core.*;
 import org.opencv.imgproc.Imgproc;

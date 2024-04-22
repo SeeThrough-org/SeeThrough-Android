@@ -1,4 +1,4 @@
-package com.project.dehazing;
+package com.seethrough.dehazing;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;

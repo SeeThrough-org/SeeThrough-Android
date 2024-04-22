@@ -1,4 +1,4 @@
-package com.project.dehazing;
+package com.seethrough.dehazing;
 
 import android.content.Context;
 
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
     public void useAppContext() {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        assertEquals("com.project.dehazing", appContext.getPackageName());
+        assertEquals("com.seethrough.dehazing", appContext.getPackageName());
     }
 }
