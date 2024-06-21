@@ -3,107 +3,84 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/DehazeImage"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_color"
+
+    style="@style/ScreenBG"
     tools:context=".DehazeImage">
 
     <TextView
         android:id="@+id/titleTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="@string/dehaze_image_text_header"
-        android:textColor="@color/text_color"
+        android:text="@string/image_enhancement_title"
         android:textSize="24sp"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="64dp"
+        style="@style/Text"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
-    <FrameLayout
-        android:id="@+id/imagePreviewContainer"
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/imagePreviewCard"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="16dp"
-        android:background="@color/background_color"
-        app:layout_constraintBottom_toTopOf="@id/buttonLayout"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:cardCornerRadius="24dp"
+        app:cardElevation="8dp"
+        app:strokeWidth="0dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginHorizontal="24dp"
+        app:layout_constraintTop_toBottomOf="@id/titleTextView"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/titleTextView">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent="0.6">
 
         <ImageView
             android:id="@+id/ImagePreview"
             android:layout_width="match_parent"
-            android:layout_height="600dp"
-            android:background="#CCCCCC"
-            app:layout_constraintBottom_toTopOf="@id/buttonLayout"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/titleTextView"
-            app:layout_constraintVertical_bias="0.04" />
+            android:layout_height="match_parent"
+            android:scaleType="fitCenter"
+            style="@style/ImageViewCardPreview"
+            android:contentDescription="@string/image_preview_description" />
 
-    </FrameLayout>
+    </com.google.android.material.card.MaterialCardView>
 
-    <LinearLayout
-        android:id="@+id/buttonLayout"
-        android:layout_width="match_parent"
+    <com.google.android.material.switchmaterial.SwitchMaterial
+        android:id="@+id/EnhanceImage"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingHorizontal="16dp"
-        android:paddingVertical="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginTop="32dp"
+        android:text="@string/enhance_image_switch"
+        style="@style/Text"
+        android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/imagePreviewCard" />
 
-        <Button
-            android:id="@+id/LoadImage"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginEnd="8dp"
-            android:layout_weight="1"
-            android:backgroundTint="@color/primary_color"
-            android:text="@string/dehaze_image_load_btn"
-            android:textColor="@android:color/white" />
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/LoadImage"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/load_image_btn"
+        app:icon="@drawable/ic_load"
+        style="@style/Button"
+        app:layout_constraintStart_toStartOf="@id/imagePreviewCard"
+        app:layout_constraintEnd_toStartOf="@id/SaveImage"
+        app:layout_constraintTop_toBottomOf="@id/EnhanceImage"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="8dp" />
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@color/background_color"
-            android:gravity="center_horizontal"
-            android:orientation="vertical"
-            android:padding="8dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/switch_txt"
-                android:textColor="@color/subtext_color"
-                android:textSize="12sp" />
-
-            <androidx.appcompat.widget.SwitchCompat
-                android:id="@+id/DehazeImage"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:backgroundTint="@color/primary_color"
-                android:textColor="@color/text_color"
-                android:thumbTint="@android:color/white" />
-
-        </LinearLayout>
-
-        <Button
-            android:id="@+id/SaveImage"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginStart="8dp"
-            android:layout_weight="1"
-            android:backgroundTint="@color/primary_color"
-            android:text="@string/dehaze_image_save_btn"
-            android:textColor="@android:color/white" />
-
-    </LinearLayout>
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/SaveImage"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/save_image_btn"
+        app:icon="@drawable/ic_save"
+        style="@style/Button"
+        app:layout_constraintStart_toEndOf="@id/LoadImage"
+        app:layout_constraintEnd_toEndOf="@id/imagePreviewCard"
+        app:layout_constraintTop_toTopOf="@id/LoadImage"
+        android:layout_marginStart="8dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

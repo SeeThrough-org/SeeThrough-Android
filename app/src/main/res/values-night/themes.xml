@@ -1,7 +1,30 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.Dehazing" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your dark theme here. -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+        <item name="colorPrimary">@color/primary_color_dark</item>
+        <item name="colorOnPrimary">@color/text_color_dark</item>
+        <item name="colorPrimaryVariant">@color/button_color_dark</item>
+        <item name="colorSecondary">@color/primary_color_dark</item>
+        <item name="colorOnSecondary">@color/text_color_dark</item>
+    </style>
+      <style name="ScreenBG">
+          <item name="android:background">@color/background_color_dark</item>
+    </style>
+    <style name="Text">
+        <item name="android:textColor">@color/text_color_dark</item>
+    </style>
+    <style name="Button">
+        <item name="android:backgroundTint">@color/button_color</item>
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+
+    <style name="SubText">
+        <item name="android:textColor">@color/subtext_color_dark</item>
+    </style>
+    <style name="ImageViewCardPreview">
+        <item name="android:background">@color/subtext_color_dark</item>
+    </style>
+    <style name="SpinnerStyle" parent="Widget.AppCompat.Spinner">
+        <item name="android:textColor">@color/text_color_dark</item>
     </style>
 </resources>

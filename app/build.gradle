@@ -10,8 +10,8 @@ android {
         applicationId "com.seethrough.dehazing"
         minSdk 29
         targetSdk 34
-        versionCode 1
-        versionName "1.0"
+        versionCode 4
+        versionName "1.1"
         setProperty("archivesBaseName", applicationId + "-v" + versionCode)
         archivesBaseName = "$applicationId-v$versionCode"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -27,7 +27,8 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.debug
         }

@@ -3,7 +3,33 @@
     <style name="Base.Theme.Dehazing" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
-    </style>
+        <item name="colorPrimary">@color/primary_color_dark</item>
+        <item name="colorOnPrimary">@color/text_color_dark</item>
+        <item name="colorPrimaryVariant">@color/button_color_dark</item>
+        <item name="colorSecondary">@color/primary_color_dark</item>
+        <item name="colorOnSecondary">@color/text_color_dark</item>
 
+    </style>
+    <style name="ScreenBG">
+        <item name="android:background">@color/background_color</item>
+    </style>
+    <style name="Text">
+        <item name="android:textColor">@color/text_color</item>
+    </style>
+    <style name="Button">
+        <item name="android:backgroundTint">@color/button_color</item>
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+    <style name="SubText">
+        <item name="android:textColor">@color/subtext_color</item>
+    </style>
+    <style name="ImageViewCardPreview">
+        <item name="android:background">@color/text_color_dark</item>
+    </style>
+    <style name="SpinnerStyle"
+        parent="@android:style/Widget.TextView.SpinnerItem">
+        <item name="android:textColor">@color/text_color_dark</item>
+        <item name="android:background">@color/spinner_background_light</item>
+    </style>
     <style name="Theme.Dehazing" parent="Base.Theme.Dehazing" />
 </resources>

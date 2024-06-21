@@ -4,66 +4,115 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@android:color/white"
     tools:context=".DehazeLive">
 
     <org.opencv.android.JavaCamera2View
         android:id="@+id/CameraView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        />
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/resolutionCard"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        app:cardBackgroundColor="#80000000"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="4dp"
+        android:textColor="@android:color/white"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/resolution"
+                android:textColor="@android:color/white"
+                android:textSize="14sp" />
+
+            <androidx.appcompat.widget.AppCompatSpinner
+                android:id="@+id/resolution_spinner"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:layout_marginTop="4dp"
+                android:minHeight="22dp"
+                style="@style/SpinnerStyle"
+                android:spinnerMode="dropdown" />
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/dehazeCard"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        app:cardBackgroundColor="#80000000"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="4dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/dehaze_switch"
+                android:textColor="@android:color/white"
+                android:textSize="14sp" />
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/activate_dcp"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:layout_marginTop="4dp"
+                android:textColor="@android:color/white" />
+
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
 
     <TextView
         android:id="@+id/debug_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_margin="16dp"
+        android:background="#80000000"
+        android:padding="8dp"
         android:text="@string/fps"
         android:textColor="#FFFFFF"
-        android:textSize="16sp"
-        app:layout_constraintEnd_toEndOf="@id/CameraView"
-        app:layout_constraintStart_toStartOf="@id/CameraView"
-        app:layout_constraintTop_toTopOf="@id/CameraView" />
+        android:textSize="14sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="@string/dehaze_switch"
-        android:textColor="@android:color/white"
-        app:layout_constraintBottom_toTopOf="@id/activate_dcp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"/>
-
-    <androidx.appcompat.widget.SwitchCompat
-        android:id="@+id/activate_dcp"
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/capture_Live"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        android:textColor="@android:color/white"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <ImageButton
-        android:id="@+id/capture_Live"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
+        android:contentDescription="@string/capture_image_button_description"
         android:src="@drawable/btn_capture"
-        android:textColor="@color/text_color"
-        android:backgroundTint="#fff"
-        android:layout_marginEnd="20dp"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:backgroundTint="@android:color/white"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginBottom="15dp"
-        android:background="@drawable/btn_capture_border_radius"
-        android:contentDescription="@string/capture_image_button_description"/>
-
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:tint="@android:color/black" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

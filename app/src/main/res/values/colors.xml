@@ -1,17 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Light -->
     <color name="background_color">#F7F7F7</color>
     <color name="text_color">#333333</color>
-    <color name="button_color">#4CAF50</color>
+    <color name="button_color">#91495B</color>
     <color name="subtext_color">#666666</color>
-
-    <!-- Additional colors -->
     <color name="primary_color">#2196F3</color>
-    <color name="primary_dark_color">#1976D2</color>
-    <color name="accent_color">#FF5722</color>
-    <color name="divider_color">#BDBDBD</color>
-    <color name="icon_tint_color">#757575</color>
-    <color name="success_color">#4CAF50</color>
-    <color name="warning_color">#FFC107</color>
-    <color name="error_color">#F44336</color>
+    <!-- Dark -->
+    <color name="background_color_dark">#212121</color>
+    <color name="text_color_dark">#FFFFFF</color>
+    <color name="button_color_dark">#66BB6A</color>
+    <color name="subtext_color_dark">#AAAAAA</color>
+    <color name="primary_color_dark">#03A9F4</color>
+    <!-- Spinner -->
+    <color name="text_color_light">#000000</color>
+    <color name="spinner_background_light">#FFFFFF</color>
+    <color name="spinner_arrow_light">#000000</color>
 </resources>

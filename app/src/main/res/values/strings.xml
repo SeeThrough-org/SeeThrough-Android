@@ -1,17 +1,40 @@
 <resources>
     <string name="app_name">SeeThrough</string>
-    <string name="dehaze_switch">Dehaze Switch</string>
+    <string name="dehaze_switch">Dehaze</string>
     <string name="fps">FPS:</string>
     <string name="title_text">Dehazing</string>
     <string name="sub_text">See Through Dehaze: A Haze Removal</string>
-    <string name="button_1">Dehaze Camera</string>
-    <string name="button_2">Image</string>
+    <string name="live_dehazing">Live Dehazing</string>
+    <string name="image_dehazing">Image Enhacement</string>
     <string name="permissions">Permissions:</string>
-    <string name="dehaze_image_text_header">Dehaze Image</string>
+    <string name="dehaze_image_text_header">Image Enhancement</string>
     <string name="capture_image_button_description">Capture Image</string>
     <string name="dehaze_image_save_btn">Save</string>
     <string name="dehaze_image_load_btn">Load</string>
+    <string name="image_enhancement_title">Image Enhancement</string>
+    <string name="enhance_image_switch">Enhance Image</string>
+    <string name="load_image_btn">Load Image</string>
+    <string name="save_image_btn">Save Image</string>
+    <string name="image_preview_description">Preview of the image to be enhanced</string>
     <string name="switch_txt">Dehaze Switch</string>
     <string name="ImagePreview_description">Preview of the dehazed image</string>
     <string name="logo_description">The Logo of the application: a cloud and a face on top, accompanied by the text \"SEE THROUGH\" and a tagline \"See clearly, act swiftly.\" The design is modern and minimalistic.</string>
+    <string name="switch_theme">Dark Mode:  </string>
+    <string name="resolution">Resolution</string>
+    <!-- Permission-related strings -->
+    <string name="permission_required">Permission Required</string>
+    <string name="camera_permission_rationale">This app needs the CAMERA permission to function properly. If you deny the permission, the app will not work and you will have to grant the permission manually from the app settings.</string>
+    <string name="grant_permission">Grant Permission</string>
+    <string name="cancel">Cancel</string>
+    <string name="camera_permission_status">Camera: %s</string>
+    <string name="granted">Granted</string>
+    <string name="denied">Denied</string>
+    <string name="permission_denied_message">Permission denied. Please grant permission to continue.</string>
+
+
+    <!-- Theme switch label -->
+    <string name="dark_mode">Dark Mode</string>
+
+    <!-- Other UI elements -->
+    <string name="permission_status_title">Permission Status:</string>
 </resources>
