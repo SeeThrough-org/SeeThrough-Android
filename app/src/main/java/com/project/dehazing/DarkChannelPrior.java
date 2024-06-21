@@ -2,104 +2,126 @@ package com.seethrough.dehazing;
 
 import org.opencv.core.*;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.imgcodecs.Imgcodecs;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class DarkChannelPrior {
-
-    public static Mat enhance(Mat image, double kernelRatio, double minAtmosLight) {
+    private static final int DARK_CHANNEL_SIZE = 12;
+    private static final int TRANSMISSION_MAP_SIZE = 3;
+    private static final double OMEGA = 0.90;
+    private static final double MIN_TRANSMISSION = 0.1;
+    private static final double MAX_TRANSMISSION = 1.0;
+    private static final double ATMOSPHERIC_LIGHT_PERCENTILE = 0.0001;
+    public static Mat enhance(Mat image) {
         if (image == null) {
             throw new IllegalArgumentException("Input image cannot be null");
         }
-        if (kernelRatio < 0 || kernelRatio > 1) {
-            throw new IllegalArgumentException("Kernel ratio must be between 0 and 1");
-        }
-        if (minAtmosLight < 0 || minAtmosLight > 255) {
-            throw new IllegalArgumentException("Minimum atmospheric light must be between 0 and 255");
-        }
         image.convertTo(image, CvType.CV_32F);
-        LinkedList<Mat> rgb = new LinkedList<>();
-        Core.split(image, rgb);
-        Mat minRGB = DarkChannel(image, kernelRatio);
-        Mat t = createTransmissionMap(image,minRGB);
-        minAtmosLight = getMinAtmosphericLight(minRGB, minAtmosLight);
-        applyDehazeToChannels(rgb, t, minAtmosLight);
-        Mat outval = RecoverImage(rgb);
-        releaseMats(minRGB, t, rgb.get(0), rgb.get(1), rgb.get(2));
+        Mat DarkChannel = darkChannel(image, DARK_CHANNEL_SIZE);
+        double atmosphericLight = estimateAtmosphericLight(DarkChannel);
+        Mat transmissionMap = estimateTransmissionMap(image, atmosphericLight);
+        Mat refinedTransmissionMap = transmissionMapRefine(transmissionMap);
+        Mat enhancedImage = recoverImage(image, refinedTransmissionMap, atmosphericLight);
 
-        return outval;
+        // Convert back to norm image
+        enhancedImage.convertTo(enhancedImage, CvType.CV_8UC3);
+
+        // Clean up
+        DarkChannel.release();
+        transmissionMap.release();
+
+        return enhancedImage;
     }
 
-    private static synchronized void dehazeChannel(Mat channel, Mat t, double minAtmosLight) {
-        Mat t_ = new Mat();
-        Core.subtract(t, new Scalar(1.0), t_);
-        Core.multiply(t_, new Scalar(-1.0 * minAtmosLight), t_);
-        Core.subtract(channel, t_, channel);
-        Core.divide(channel, t, channel);
-        t_.release();
-    }
+    private static Mat darkChannel(Mat image, int size) {
+        List<Mat> channels = new ArrayList<>();
+        Core.split(image, channels);
 
-    private static void releaseMats(Mat... mats) {
-        for (Mat mat : mats) {
-            mat.release();
-        }
-    }
+        Mat darkChannel = new Mat();
+        Core.min(channels.get(0), channels.get(1), darkChannel);
+        Core.min(darkChannel, channels.get(2), darkChannel);
 
-    private static Mat DarkChannel(Mat image, double kernelRatio) {
-        LinkedList<Mat> rgb = new LinkedList<>();
-        Core.split(image, rgb);
-        Mat rChannel = rgb.get(0);
-        Mat gChannel = rgb.get(1);
-        Mat bChannel = rgb.get(2);
+        Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(size, size));
+        Imgproc.erode(darkChannel, darkChannel, kernel);
 
-        Mat dc = new Mat(image.size(), CvType.CV_32F);
-        Core.min(rChannel, gChannel, dc);
-        Core.min(dc, bChannel, dc);
-
-        int rows = rChannel.rows();
-        int cols = rChannel.cols();
-        int kernelSize = Double.valueOf(Math.max(Math.max(rows * kernelRatio, cols * kernelRatio), 11)).intValue();
-        Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(kernelSize, kernelSize), new Point(-1, -1));
-        Imgproc.erode(dc, dc, kernel);
         kernel.release();
+        channels.forEach(Mat::release);
 
-        return dc;
+        return darkChannel;
     }
 
-    private static double getMinAtmosphericLight(Mat minRGB, double minAtmosLight) {
-        Core.MinMaxLocResult minMaxLocResult = Core.minMaxLoc(minRGB);
-        return Math.min(minAtmosLight, minMaxLocResult.maxVal);
+    private static double estimateAtmosphericLight(Mat darkChannel) {
+        Mat sortedMinRGB = new Mat();
+        Core.sort(darkChannel.reshape(1, 1), sortedMinRGB, Core.SORT_EVERY_ROW + Core.SORT_ASCENDING);
+        int topN = Math.max((int)(sortedMinRGB.total() * ATMOSPHERIC_LIGHT_PERCENTILE), 1); // Top 0.1% brightest pixels, at least 1
+        double sum = 0.0;
+        for (int i = sortedMinRGB.cols() - topN; i < sortedMinRGB.cols(); i++) {
+            sum += sortedMinRGB.get(0, i)[0];
+        }
+        double avgAtmosLight = sum / topN;
+        sortedMinRGB.release();
+        return avgAtmosLight;
     }
 
-    private static Mat createTransmissionMap(Mat image, Mat minRGB) {
-        Mat t = new Mat(image.size(), CvType.CV_32F);
-        Core.subtract(minRGB, new Scalar(255.0), t);
-        Core.multiply(t, new Scalar(-1.0), t);
-        Core.divide(t, new Scalar(255.0), t);
+    private static Mat estimateTransmissionMap(Mat image, double A) {
 
-        Mat gray = new Mat(image.size(), CvType.CV_32F);
-        Imgproc.cvtColor(image, gray, Imgproc.COLOR_RGB2GRAY);
-        Core.divide(gray, new Scalar(255.0), gray);
-        transmissionMapRefine(t);
-        return t;
+        Mat im3 = new Mat();
+        Core.divide(image, new Scalar(A, A, A, 0), im3); // Normalize each channel by A
+        Mat darkChannel = darkChannel(im3, TRANSMISSION_MAP_SIZE);
+        Mat transmission = new Mat();
+        Core.multiply(darkChannel, new Scalar(-OMEGA), transmission);
+        Core.add(transmission, new Scalar(MAX_TRANSMISSION), transmission);
+
+        // Ensure transmission values are within a reasonable range
+        Core.max(transmission, new Scalar(MIN_TRANSMISSION), transmission); // Avoid too low values that could cause black pixels
+        Core.min(transmission, new Scalar(MAX_TRANSMISSION), transmission); // Ensure no value exceeds 1.0
+
+        //clean up
+        darkChannel.release();
+        im3.release();
+
+        return transmission;
+    }
+    private static Mat transmissionMapRefine(Mat transmission) {
+        Mat refinedTransmission = new Mat();
+        Imgproc.GaussianBlur(transmission, refinedTransmission, new Size(TRANSMISSION_MAP_SIZE * 2 + 1, TRANSMISSION_MAP_SIZE * 2 + 1), 2);
+        transmission.release();
+        return refinedTransmission;
     }
 
-    private static Mat transmissionMapRefine(Mat t) {
-        int blurKernelSize = 9;
-        int sigma = 5 * blurKernelSize;
-        Imgproc.GaussianBlur(t, t, new Size(blurKernelSize, blurKernelSize), sigma);
-        return t;
-    }
+    private static Mat recoverImage(Mat image, Mat t, double AtmosphericLight) {
+        double tx = 0.1;
+        Mat maxT = new Mat();
+        Core.max(t, new Scalar(tx), maxT);
 
-    private static void applyDehazeToChannels(List<Mat> rgb, Mat t, double minAtmosLight) {
-        rgb.parallelStream().forEach(channel -> dehazeChannel(channel, t, minAtmosLight));
-    }
+        List<Mat> channels = new ArrayList<>();
+        Core.split(image, channels);
 
-    private static Mat RecoverImage(List<Mat> channels) {
-        Mat outval = new Mat();
-        Core.merge(channels, outval);
-        outval.convertTo(outval, CvType.CV_8UC1);
-        return outval;
+        List<Mat> recoveredChannels = new ArrayList<>();
+
+        for (Mat channel : channels) {
+            Mat recoveredChannel = new Mat();
+            Core.subtract(channel, new Scalar(AtmosphericLight), recoveredChannel);
+            Core.divide(recoveredChannel, maxT, recoveredChannel);
+            Core.add(recoveredChannel, new Scalar(AtmosphericLight), recoveredChannel);
+            recoveredChannels.add(recoveredChannel);
+        }
+
+        Mat result = new Mat();
+        Core.merge(recoveredChannels, result);
+
+        // Clean up
+        maxT.release();
+        for (Mat channel : channels) {
+            channel.release();
+        }
+        for (Mat channel : recoveredChannels) {
+            channel.release();
+        }
+
+        return result;
     }
 }
