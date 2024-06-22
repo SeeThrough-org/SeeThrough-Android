@@ -5,12 +5,12 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
+
+import android.annotation.SuppressLint;
 import android.content.ActivityNotFoundException;
 import android.content.ContentValues;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
@@ -18,7 +18,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.view.View;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -30,119 +30,101 @@ import java.io.OutputStream;
 
 public class DehazeImage extends AppCompatActivity {
 
-    private static final String TAG = "DehazeImage";
-    private static final String IMAGE_MIME_TYPE = "image/png";
-    private static final String[] ACCEPTED_MIME_TYPES = {"image/jpeg", "image/png"};
-
     private Uri selectedImageUri;
     private ImageView imagePreview;
     private boolean imageProcessed = false;
     private Bitmap dehazedBitmap;
-    private SwitchCompat dehazeSwitch;
-
-    private final ActivityResultLauncher<String> imagePicker = registerForActivityResult(
-            new ActivityResultContracts.GetContent(),
-            this::handleImagePickerResult
-    );
-
-    private static WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
-        Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-        v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-        return insets;
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dehaze_image);
         setupUI();
     }
-
     private void setupUI() {
-        EdgeToEdge.enable(this);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.DehazeImage), DehazeImage::onApplyWindowInsets);
-
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         imagePreview = findViewById(R.id.ImagePreview);
-        dehazeSwitch = findViewById(R.id.EnhanceImage);
-        dehazeSwitch.setEnabled(false);
-
+        SwitchCompat dehazeSwitch = findViewById(R.id.DehazeImage);
         findViewById(R.id.LoadImage).setOnClickListener(v -> loadImage());
         findViewById(R.id.SaveImage).setOnClickListener(v -> saveImage());
-        dehazeSwitch.setOnCheckedChangeListener((buttonView, isChecked) ->
-                updateImagePreview(isChecked)
-        );
-    }
-
-    private void updateImagePreview(boolean isChecked) {
-        if (isChecked) {
-            if (!imageProcessed) {
-                dehazeImage();
+        dehazeSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                if (!imageProcessed) {
+                    dehazeImage();
+                } else {
+                    imagePreview.setImageBitmap(dehazedBitmap);
+                }
             } else {
-                imagePreview.setImageBitmap(dehazedBitmap);
+                originalImage();
             }
-        } else {
-            showOriginalImage();
-        }
+        });
     }
 
-    private void loadImage() {
-        try {
-            imagePicker.launch("image/*");
-        } catch (ActivityNotFoundException e) {
-            Toast.makeText(this, "No app can handle picking an image.", Toast.LENGTH_SHORT).show();
-        }
-    }
+    private final ActivityResultLauncher<Intent> imagePicker = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(), result -> {
+                if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                    selectedImageUri = result.getData().getData();
+                    try {
+                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImageUri);
+                        imagePreview.setImageBitmap(bitmap);
+                        imageProcessed = false;
+                    } catch (IOException e) {
+                        Log.e("DehazeImage", "Error loading image", e);
+                    }
+                }
+            });
 
-    private void handleImagePickerResult(Uri uri) {
-        if (uri != null) {
-            selectedImageUri = uri;
-            try {
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), selectedImageUri);
-                imagePreview.setImageBitmap(bitmap);
-                imageProcessed = false;
-                dehazeSwitch.setEnabled(true);
-                dehazeSwitch.setChecked(false);
-            } catch (IOException e) {
-                Log.e(TAG, "Error loading image", e);
-                dehazeSwitch.setEnabled(false);
-            }
-        } else {
-            dehazeSwitch.setEnabled(false);
-            dehazeSwitch.setChecked(false);
-        }
-    }
 
-    private void showOriginalImage() {
+    private void originalImage(){
         if (selectedImageUri != null) {
             try {
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), selectedImageUri);
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImageUri);
                 imagePreview.setImageBitmap(bitmap);
                 imageProcessed = false;
-                dehazeSwitch.setEnabled(true);
             } catch (IOException e) {
-                Log.e(TAG, "Error loading image", e);
-                dehazeSwitch.setEnabled(false);
+                Log.e("DehazeImage", "Error loading image", e);
             }
-        } else {
-            dehazeSwitch.setEnabled(false);
+        }
+    }
+
+    @SuppressLint("QueryPermissionsNeeded")
+    private void loadImage() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT)
+                .setType("image/*")
+                .addCategory(Intent.CATEGORY_OPENABLE)
+                .putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"image/jpeg", "image/png"});
+        try {
+            if (intent.resolveActivity(getPackageManager()) != null) {
+                imagePicker.launch(intent);
+            } else {
+                Toast.makeText(this,"No app can handle picking an image.", Toast.LENGTH_SHORT).show();
+            }
+        } catch (ActivityNotFoundException e) {
+            Toast.makeText(this,"No activity found to handle image picking.", Toast.LENGTH_SHORT).show();
         }
     }
 
     private void dehazeImage() {
+        double kernel = 0.01;
+        double minAtmosphericLight = 240.0;
         if (selectedImageUri != null) {
             try {
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), selectedImageUri);
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImageUri);
                 Mat inputMat = new Mat();
                 Utils.bitmapToMat(bitmap.copy(Bitmap.Config.ARGB_8888, true), inputMat);
-                Mat dehazedMat = DarkChannelPrior.enhance(inputMat);
-                dehazedBitmap = Bitmap.createBitmap(dehazedMat.cols(), dehazedMat.rows(), Bitmap.Config.ARGB_8888);
-                Utils.matToBitmap(dehazedMat, dehazedBitmap);
+                Mat dehazedMat = DarkChannelPrior.enhance(inputMat, kernel, minAtmosphericLight);
+                dehazedBitmap = ConvertMatToBitmap(dehazedMat);
                 imagePreview.setImageBitmap(dehazedBitmap);
                 imageProcessed = true;
             } catch (IOException e) {
-                Log.e(TAG, "Error dehazing image", e);
+                Log.e("DehazeImage", "Error dehazing image", e);
             }
         }
+    }
+
+    private Bitmap ConvertMatToBitmap(Mat inputMat) {
+        Bitmap bitmap = Bitmap.createBitmap(inputMat.cols(), inputMat.rows(), Bitmap.Config.ARGB_8888);
+        Utils.matToBitmap(inputMat, bitmap);
+        return bitmap;
     }
 
     private void saveImage() {
@@ -151,7 +133,7 @@ public class DehazeImage extends AppCompatActivity {
                 String newFileName = System.currentTimeMillis() + "_Dehazed.png";
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, newFileName);
-                contentValues.put(MediaStore.MediaColumns.MIME_TYPE, IMAGE_MIME_TYPE);
+                contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/png");
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/Dehazed");
@@ -162,7 +144,9 @@ public class DehazeImage extends AppCompatActivity {
 
                 if (uri != null) {
                     try (OutputStream outputStream = getContentResolver().openOutputStream(uri)) {
-                        dehazedBitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+                        if (outputStream != null) {
+                            dehazedBitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+                        }
                     }
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                         contentValues.clear();
@@ -174,9 +158,10 @@ public class DehazeImage extends AppCompatActivity {
                     Toast.makeText(this, "Failed to save Image", Toast.LENGTH_SHORT).show();
                 }
             } catch (Exception e) {
-                Log.e(TAG, "Error saving image", e);
+                Log.e("DehazeImage", "Error saving image", e);
                 Toast.makeText(this, "Failed to save", Toast.LENGTH_SHORT).show();
             }
         }
     }
+
 }
