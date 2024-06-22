@@ -1,64 +1,74 @@
-### Importing OpenCV Module into Android Studio Project
+<h1 align="center"><img src="https://capsule-render.vercel.app/api?type=waving&height=300&color=gradient&text=SeeThrough&textBg=false&reversal=false&animation=fadeIn&desc=See%20Clearly,%20Act%20Swiftly&descAlign=49&descAlignY=62"></h1>
 
-1. Download OpenCV Android and extract it from [here](https://opencv.org/releases/).
-2. In Android Studio, go to "File" -> "New" -> "Import Module".
-3. Navigate to the OpenCV-Mobile SDK folder and select the "sdk" folder. Click "Finish" to import the OpenCV module into your Android project.
-or simply drop the sdk folder in the directory of the repo
-### Modifying CameraBridgeViewBase.Java
+<p align="center"><sup>Real-Time Image and Video Dehazing for Mobile Devices**</sup></p>
 
-In the `CameraBridgeViewBase.java` file, find the `deliverAndDrawFrame` method and replace it with the following code:
-```java
+---
 
-protected void deliverAndDrawFrame(CvCameraViewFrame frame) {
-        Mat modified;
+## Overview
 
-        if (mListener != null) {
-            modified = mListener.onCameraFrame(frame);
-        } else {
-            modified = frame.rgba();
-        }
+This guide provides steps to build the SeeThrough mobile application with OpenCV integration in Android Studio.
 
-        boolean bmpValid = true;
-        if (modified != null) {
-            try {
-                Utils.matToBitmap(modified, mCacheBitmap);
-            } catch(Exception e) {
-                Log.e(TAG, "Mat type: " + modified);
-                Log.e(TAG, "Bitmap type: " + mCacheBitmap.getWidth() + "*" + mCacheBitmap.getHeight());
-                Log.e(TAG, "Utils.matToBitmap() throws an exception: " + e.getMessage());
-                bmpValid = false;
-            }
-        }
+* [Building the Project](#building-the-project)
+  1. [Importing OpenCV](#importing-opencv)
+  2. [Installing the Application](#installing-the-application)
 
-        if (bmpValid && mCacheBitmap != null) {
-            Canvas canvas = getHolder().lockCanvas();
-            if (canvas != null) {
-                canvas.drawColor(0, android.graphics.PorterDuff.Mode.CLEAR);
-                if (BuildConfig.DEBUG)
-                    Log.d(TAG, "mStretch value: " + mScale);
+---
 
-                float halfCanvasWidth = canvas.getWidth() * 0.5f;
-                float halfCanvasHeight = canvas.getHeight() * 0.5f;
-                float deltaX = halfCanvasWidth - mCacheBitmap.getWidth() * 0.5f;
-                float deltaY = halfCanvasHeight - mCacheBitmap.getHeight() * 0.5f;
-                float scale = canvas.getWidth() / (float) mCacheBitmap.getHeight();
+## Building the Project
 
+### 1. Importing OpenCV
 
-                Matrix matrix = new Matrix();
-                matrix.preTranslate(deltaX, deltaY);
+To integrate OpenCV into your Android Studio project, follow these steps:
 
-                matrix.postRotate(90f, halfCanvasWidth, halfCanvasHeight);
+1. **Download OpenCV Android SDK:**
+   - Obtain the SDK from [OpenCV Releases](https://opencv.org/releases/).
+   - Extract the downloaded archive.
 
-                matrix.postScale(scale, scale, halfCanvasWidth, halfCanvasHeight);
+2. **Import the OpenCV Module:**
+   - In Android Studio, go to `File` > `New` > `Import Module`.
+   - Select the `sdk` folder from the extracted OpenCV directory.
+   - Click `Finish` to import the module into your project.
 
-                canvas.drawBitmap(mCacheBitmap, matrix, null);
+3. **Add OpenCV to Project Settings:**
+   - Open the `settings.gradle` file in your project and include the OpenCV module:
+     ```gradle
+     include ':opencv'
+     project(':opencv').projectDir = new File('path/to/opencv/sdk')
+     ```
+   - Adjust the path to match where you extracted the OpenCV SDK.
 
-                if (mFpsMeter != null) {
-                    mFpsMeter.measure();
-                    mFpsMeter.draw(canvas, 20, 30);
-                }
-                getHolder().unlockCanvasAndPost(canvas);
-            }
-        }
-    }
-	```
+4. **Update App Module Dependencies:**
+   - In `app/build.gradle`, add the OpenCV dependency:
+     ```gradle
+     dependencies {
+         implementation project(':opencv')
+         // other dependencies
+     }
+     ```
+
+---
+
+### 2. Installing the Application
+
+Follow these steps to install the SeeThrough application:
+
+1. **Download the Latest Release:**
+   - Go to the [SeeThrough Releases](https://github.com/SeeThrough-org/SeeThrough-android/releases/) page.
+   - Download the latest release of the application.
+
+2. **Install on Your Device:**
+   - Transfer the downloaded APK file to your Android device.
+   - Open the APK file on your device and follow the on-screen instructions to install it.
+
+---
+
+### Additional Resources
+
+- **OpenCV Documentation:** For more details on setting up OpenCV, visit the [OpenCV Documentation](https://docs.opencv.org/master/d5/da3/tutorial_py_setup_in_windows.html).
+- **OpenCV Forum:** For community support, check out the [OpenCV Forum](https://forum.opencv.org/).
+
+---
+
+**SeeThrough**: **See Clearly, Act Swiftly**
+
+---
