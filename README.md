@@ -1,6 +1,6 @@
 <h1 align="center"><img src="https://capsule-render.vercel.app/api?type=waving&height=300&color=gradient&text=SeeThrough&textBg=false&reversal=false&animation=fadeIn&desc=See%20Clearly,%20Act%20Swiftly&descAlign=49&descAlignY=62"></h1>
 
-<p align="center"><sup>Real-Time Image and Video Dehazing for Mobile Devices**</sup></p>
+<p align="center"><sup>Real-Time Image and Video Dehazing for Mobile Devices</sup></p>
 
 ---
 
@@ -8,47 +8,18 @@
 
 This guide provides steps to build the SeeThrough mobile application with OpenCV integration in Android Studio.
 
+* [Installing the APK](#installing-the-apk)
+   1. [Installing the Application](#installing-the-application)
+
 * [Building the Project](#building-the-project)
-  1. [Importing OpenCV](#importing-opencv)
-  2. [Installing the Application](#installing-the-application)
+  1. [Cloning the Repository](#cloning-the-repository)
+  2. [Building the Application](#building-the-application)
 
 ---
 
-## Building the Project
+## Installing the APK
 
-### 1. Importing OpenCV
-
-To integrate OpenCV into your Android Studio project, follow these steps:
-
-1. **Download OpenCV Android SDK:**
-   - Obtain the SDK from [OpenCV Releases](https://opencv.org/releases/).
-   - Extract the downloaded archive.
-
-2. **Import the OpenCV Module:**
-   - In Android Studio, go to `File` > `New` > `Import Module`.
-   - Select the `sdk` folder from the extracted OpenCV directory.
-   - Click `Finish` to import the module into your project.
-
-3. **Add OpenCV to Project Settings:**
-   - Open the `settings.gradle` file in your project and include the OpenCV module:
-     ```gradle
-     include ':opencv'
-     project(':opencv').projectDir = new File('path/to/opencv/sdk')
-     ```
-   - Adjust the path to match where you extracted the OpenCV SDK.
-
-4. **Update App Module Dependencies:**
-   - In `app/build.gradle`, add the OpenCV dependency:
-     ```gradle
-     dependencies {
-         implementation project(':opencv')
-         // other dependencies
-     }
-     ```
-
----
-
-### 2. Installing the Application
+### 1. Installing the Application
 
 Follow these steps to install the SeeThrough application:
 
@@ -62,13 +33,32 @@ Follow these steps to install the SeeThrough application:
 
 ---
 
-### Additional Resources
+## Building the Project
 
-- **OpenCV Documentation:** For more details on setting up OpenCV, visit the [OpenCV Documentation](https://docs.opencv.org/master/d5/da3/tutorial_py_setup_in_windows.html).
-- **OpenCV Forum:** For community support, check out the [OpenCV Forum](https://forum.opencv.org/).
+### 1. Cloning the Repository
 
----
+To get the source code for the SeeThrough application, follow these steps:
 
-**SeeThrough**: **See Clearly, Act Swiftly**
+1. **Clone the Repository:**
+   - Open a terminal and run the following command:
+     ```sh
+     git clone https://github.com/SeeThrough-org/SeeThrough-android.git
+     ```
+
+### 2. Building the Application
+
+After cloning the repository, follow these steps to build the application:
+
+1. **Open the Project in Android Studio:**
+   - Launch Android Studio and select `Open an existing project`.
+   - Navigate to the directory where you cloned the repository and open it.
+
+2. **Build the Project:**
+   - Android Studio will automatically download the necessary dependencies, including OpenCV.
+   - Click on `Build` > `Make Project` to compile the application.
+
+3. **Run the Application:**
+   - Connect your Android device to your computer.
+   - Click on `Run` > `Run 'app'` to install and run the application on your device.
 
 ---
